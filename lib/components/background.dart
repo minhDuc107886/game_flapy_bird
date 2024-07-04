@@ -14,5 +14,4 @@ class Background extends SpriteComponent with HasGameRef<FlappyBirdGame>{
     sprite = Sprite(background);
   }
 
-
 }
