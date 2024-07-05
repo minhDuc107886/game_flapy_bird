@@ -17,10 +17,11 @@ class Bird extends SpriteGroupComponent<BirdMovement>
 
     current = BirdMovement.midle;
     sprites = {
-      BirdMovement.midle: birdDownFlap,
+      BirdMovement.midle: birdMidFlap,
       BirdMovement.up : birdUpFlap,
       BirdMovement.down: birdDownFlap
     };
 
+    position = Vector2(50, gameRef.size.y/2 - size.y/2);
   }
 }
