@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flappy_bird/game/bird_movement.dart';
 import 'package:flappy_bird/game/configuration.dart';
 import 'package:flappy_bird/game/flappy_bird_game.dart';
@@ -14,6 +15,8 @@ import '../game/assets.dart';
 class Bird extends SpriteGroupComponent<BirdMovement>
     with HasGameRef<FlappyBirdGame>, CollisionCallbacks{
   Bird();
+
+  int score = 0;
 
   @override
   Future<void> onLoad() async{
@@ -36,10 +39,9 @@ class Bird extends SpriteGroupComponent<BirdMovement>
           EffectController(duration: 0.2, curve: Curves.decelerate),
           onComplete: () => current = BirdMovement.down,
         ));
-
   }
 
-  void fly(){
+  void fly() async{
    add(
      MoveByEffect(
        Vector2(0, Config.gravity),
@@ -47,6 +49,7 @@ class Bird extends SpriteGroupComponent<BirdMovement>
        onComplete: () => current = BirdMovement.down,
    ));
    current = BirdMovement.up;
+   await FlameAudio.play(Assets.flying);
   }
 
 
@@ -56,24 +59,29 @@ class Bird extends SpriteGroupComponent<BirdMovement>
       PositionComponent other,
   ){
     super.onCollisionStart(intersectionPoints, other);
+    game.isHit = true;
     gameOver();
-    debugPrint('Collision Detected');
+
   }
 
   void gameOver(){
+    FlameAudio.play(Assets.collision);
     gameRef.overlays.add("gameOver");
     gameRef.pauseEngine();
 
-    game.isHit = true;
   }
 
-  void reset(){
+  void reset() {
     position = Vector2(50, gameRef.size.y/2 - size.y/2);
+    score = 0;
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     position.y += Config.birdVelocity * dt;
+    if (position.y < 1){
+      gameOver();
+    }
   }
 }
